@@ -204,200 +204,201 @@ public class RNPushNotificationHelper {
                         visibility = NotificationCompat.VISIBILITY_PRIVATE;
                 }
             }
+                if (!bundle.getBoolean("foreground")) {
+                NotificationCompat.Builder notification = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
+                        .setContentTitle(title)
+                        .setTicker(bundle.getString("ticker"))
+                        .setVisibility(visibility)
+                        .setPriority(priority)
+                        .setAutoCancel(bundle.getBoolean("autoCancel", true));
 
-            NotificationCompat.Builder notification = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
-                    .setContentTitle(title)
-                    .setTicker(bundle.getString("ticker"))
-                    .setVisibility(visibility)
-                    .setPriority(priority)
-                    .setAutoCancel(bundle.getBoolean("autoCancel", true));
+                String group = bundle.getString("group");
+                if (group != null) {
+                    notification.setGroup(group);
+                }
 
-            String group = bundle.getString("group");
-            if (group != null) {
-                notification.setGroup(group);
-            }
+                notification.setContentText(bundle.getString("message"));
 
-            notification.setContentText(bundle.getString("message"));
+                String largeIcon = bundle.getString("largeIcon");
 
-            String largeIcon = bundle.getString("largeIcon");
+                String subText = bundle.getString("subText");
 
-            String subText = bundle.getString("subText");
+                if (subText != null) {
+                    notification.setSubText(subText);
+                }
 
-            if (subText != null) {
-                notification.setSubText(subText);
-            }
+                String numberString = bundle.getString("number");
+                if (numberString != null) {
+                    notification.setNumber(Integer.parseInt(numberString));
+                }
 
-            String numberString = bundle.getString("number");
-            if (numberString != null) {
-                notification.setNumber(Integer.parseInt(numberString));
-            }
+                int smallIconResId;
+                int largeIconResId;
 
-            int smallIconResId;
-            int largeIconResId;
+                String smallIcon = bundle.getString("smallIcon");
 
-            String smallIcon = bundle.getString("smallIcon");
-
-            if (smallIcon != null) {
-                smallIconResId = res.getIdentifier(smallIcon, "mipmap", packageName);
-            } else {
-                smallIconResId = res.getIdentifier("ic_notification", "mipmap", packageName);
-            }
-
-            if (smallIconResId == 0) {
-                smallIconResId = res.getIdentifier("ic_launcher", "mipmap", packageName);
+                if (smallIcon != null) {
+                    smallIconResId = res.getIdentifier(smallIcon, "mipmap", packageName);
+                } else {
+                    smallIconResId = res.getIdentifier("ic_notification", "mipmap", packageName);
+                }
 
                 if (smallIconResId == 0) {
-                    smallIconResId = android.R.drawable.ic_dialog_info;
+                    smallIconResId = res.getIdentifier("ic_launcher", "mipmap", packageName);
+
+                    if (smallIconResId == 0) {
+                        smallIconResId = android.R.drawable.ic_dialog_info;
+                    }
                 }
-            }
 
-            if (largeIcon != null) {
-                largeIconResId = res.getIdentifier(largeIcon, "mipmap", packageName);
-            } else {
-                largeIconResId = res.getIdentifier("ic_launcher", "mipmap", packageName);
-            }
+                if (largeIcon != null) {
+                    largeIconResId = res.getIdentifier(largeIcon, "mipmap", packageName);
+                } else {
+                    largeIconResId = res.getIdentifier("ic_launcher", "mipmap", packageName);
+                }
 
-            Bitmap largeIconBitmap = BitmapFactory.decodeResource(res, largeIconResId);
+                Bitmap largeIconBitmap = BitmapFactory.decodeResource(res, largeIconResId);
 
-            if (largeIconResId != 0 && (largeIcon != null || Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)) {
-                notification.setLargeIcon(largeIconBitmap);
-            }
+                if (largeIconResId != 0 && (largeIcon != null || Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)) {
+                    notification.setLargeIcon(largeIconBitmap);
+                }
 
-            notification.setSmallIcon(smallIconResId);
-            String bigText = bundle.getString("bigText");
+                notification.setSmallIcon(smallIconResId);
+                String bigText = bundle.getString("bigText");
 
-            if (bigText == null) {
-                bigText = bundle.getString("message");
-            }
+                if (bigText == null) {
+                    bigText = bundle.getString("message");
+                }
 
-            notification.setStyle(new NotificationCompat.BigTextStyle().bigText(bigText));
+                notification.setStyle(new NotificationCompat.BigTextStyle().bigText(bigText));
 
-            Intent intent = new Intent(context, intentClass);
-            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            bundle.putBoolean("userInteraction", true);
-            intent.putExtra("notification", bundle);
+                Intent intent = new Intent(context, intentClass);
+                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                bundle.putBoolean("userInteraction", true);
+                intent.putExtra("notification", bundle);
 
-            if (!bundle.containsKey("playSound") || bundle.getBoolean("playSound")) {
-                Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                String soundName = bundle.getString("soundName");
-                if (soundName != null) {
-                    if (!"default".equalsIgnoreCase(soundName)) {
+                if (!bundle.containsKey("playSound") || bundle.getBoolean("playSound")) {
+                    Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                    String soundName = bundle.getString("soundName");
+                    if (soundName != null) {
+                        if (!"default".equalsIgnoreCase(soundName)) {
 
-                        // sound name can be full filename, or just the resource name.
-                        // So the strings 'my_sound.mp3' AND 'my_sound' are accepted
-                        // The reason is to make the iOS and android javascript interfaces compatible
+                            // sound name can be full filename, or just the resource name.
+                            // So the strings 'my_sound.mp3' AND 'my_sound' are accepted
+                            // The reason is to make the iOS and android javascript interfaces compatible
 
-                        int resId;
-                        if (context.getResources().getIdentifier(soundName, "raw", context.getPackageName()) != 0) {
-                            resId = context.getResources().getIdentifier(soundName, "raw", context.getPackageName());
-                        } else {
-                            soundName = soundName.substring(0, soundName.lastIndexOf('.'));
-                            resId = context.getResources().getIdentifier(soundName, "raw", context.getPackageName());
+                            int resId;
+                            if (context.getResources().getIdentifier(soundName, "raw", context.getPackageName()) != 0) {
+                                resId = context.getResources().getIdentifier(soundName, "raw", context.getPackageName());
+                            } else {
+                                soundName = soundName.substring(0, soundName.lastIndexOf('.'));
+                                resId = context.getResources().getIdentifier(soundName, "raw", context.getPackageName());
+                            }
+
+                            soundUri = Uri.parse("android.resource://" + context.getPackageName() + "/" + resId);
+                        }
+                    }
+                    notification.setSound(soundUri);
+                }
+
+                if (bundle.containsKey("ongoing") || bundle.getBoolean("ongoing")) {
+                    notification.setOngoing(bundle.getBoolean("ongoing"));
+                }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    notification.setCategory(NotificationCompat.CATEGORY_CALL);
+
+                    String color = bundle.getString("color");
+                    int defaultColor = this.config.getNotificationColor();
+                    if (color != null) {
+                        notification.setColor(Color.parseColor(color));
+                    } else if (defaultColor != -1) {
+                        notification.setColor(defaultColor);
+                    }
+                }
+
+                int notificationID = Integer.parseInt(notificationIdString);
+
+                PendingIntent pendingIntent = PendingIntent.getActivity(context, notificationID, intent,
+                        PendingIntent.FLAG_UPDATE_CURRENT);
+
+                NotificationManager notificationManager = notificationManager();
+                checkOrCreateChannel(notificationManager);
+
+                notification.setContentIntent(pendingIntent);
+
+                if (!bundle.containsKey("vibrate") || bundle.getBoolean("vibrate")) {
+                    long vibration = bundle.containsKey("vibration") ? (long) bundle.getDouble("vibration") : DEFAULT_VIBRATION;
+                    if (vibration == 0)
+                        vibration = DEFAULT_VIBRATION;
+                    notification.setVibrate(new long[]{0, vibration});
+                }
+
+                JSONArray actionsArray = null;
+                try {
+                    actionsArray = bundle.getString("actions") != null ? new JSONArray(bundle.getString("actions")) : null;
+                } catch (JSONException e) {
+                    Log.e(LOG_TAG, "Exception while converting actions to JSON object.", e);
+                }
+
+                if (actionsArray != null) {
+                    // No icon for now. The icon value of 0 shows no icon.
+                    int icon = 0;
+
+                    // Add button for each actions.
+                    for (int i = 0; i < actionsArray.length(); i++) {
+                        String action;
+                        try {
+                            action = actionsArray.getString(i);
+                        } catch (JSONException e) {
+                            Log.e(LOG_TAG, "Exception while getting action from actionsArray.", e);
+                            continue;
                         }
 
-                        soundUri = Uri.parse("android.resource://" + context.getPackageName() + "/" + resId);
+                        Intent actionIntent = new Intent(context, intentClass);
+                        actionIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                        actionIntent.setAction(context.getPackageName() + "." + action);
+
+                        // Add "action" for later identifying which button gets pressed.
+                        bundle.putString("action", action);
+                        actionIntent.putExtra("notification", bundle);
+
+                        PendingIntent pendingActionIntent = PendingIntent.getActivity(context, notificationID, actionIntent,
+                                PendingIntent.FLAG_UPDATE_CURRENT);
+                        notification.addAction(icon, action, pendingActionIntent);
                     }
                 }
-                notification.setSound(soundUri);
-            }
 
-            if (bundle.containsKey("ongoing") || bundle.getBoolean("ongoing")) {
-                notification.setOngoing(bundle.getBoolean("ongoing"));
-            }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                notification.setCategory(NotificationCompat.CATEGORY_CALL);
-
-                String color = bundle.getString("color");
-                int defaultColor = this.config.getNotificationColor();
-                if (color != null) {
-                    notification.setColor(Color.parseColor(color));
-                } else if (defaultColor != -1) {
-                    notification.setColor(defaultColor);
+                // Remove the notification from the shared preferences once it has been shown
+                // to avoid showing the notification again when the phone is rebooted. If the
+                // notification is not removed, then every time the phone is rebooted, we will
+                // try to reschedule all the notifications stored in shared preferences and since
+                // these notifications will be in the past time, they will be shown immediately
+                // to the user which we shouldn't do. So, remove the notification from the shared
+                // preferences once it has been shown to the user. If it is a repeating notification
+                // it will be scheduled again.
+                if (scheduledNotificationsPersistence.getString(notificationIdString, null) != null) {
+                    SharedPreferences.Editor editor = scheduledNotificationsPersistence.edit();
+                    editor.remove(notificationIdString);
+                    commit(editor);
                 }
-            }
 
-            int notificationID = Integer.parseInt(notificationIdString);
+                Notification info = notification.build();
+                info.defaults |= Notification.DEFAULT_LIGHTS;
 
-            PendingIntent pendingIntent = PendingIntent.getActivity(context, notificationID, intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
-
-            NotificationManager notificationManager = notificationManager();
-            checkOrCreateChannel(notificationManager);
-
-            notification.setContentIntent(pendingIntent);
-
-            if (!bundle.containsKey("vibrate") || bundle.getBoolean("vibrate")) {
-                long vibration = bundle.containsKey("vibration") ? (long) bundle.getDouble("vibration") : DEFAULT_VIBRATION;
-                if (vibration == 0)
-                    vibration = DEFAULT_VIBRATION;
-                notification.setVibrate(new long[]{0, vibration});
-            }
-
-            JSONArray actionsArray = null;
-            try {
-                actionsArray = bundle.getString("actions") != null ? new JSONArray(bundle.getString("actions")) : null;
-            } catch (JSONException e) {
-                Log.e(LOG_TAG, "Exception while converting actions to JSON object.", e);
-            }
-
-            if (actionsArray != null) {
-                // No icon for now. The icon value of 0 shows no icon.
-                int icon = 0;
-
-                // Add button for each actions.
-                for (int i = 0; i < actionsArray.length(); i++) {
-                    String action;
-                    try {
-                        action = actionsArray.getString(i);
-                    } catch (JSONException e) {
-                        Log.e(LOG_TAG, "Exception while getting action from actionsArray.", e);
-                        continue;
-                    }
-
-                    Intent actionIntent = new Intent(context, intentClass);
-                    actionIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                    actionIntent.setAction(context.getPackageName() + "." + action);
-
-                    // Add "action" for later identifying which button gets pressed.
-                    bundle.putString("action", action);
-                    actionIntent.putExtra("notification", bundle);
-
-                    PendingIntent pendingActionIntent = PendingIntent.getActivity(context, notificationID, actionIntent,
-                            PendingIntent.FLAG_UPDATE_CURRENT);
-                    notification.addAction(icon, action, pendingActionIntent);
+                if (bundle.containsKey("tag")) {
+                    String tag = bundle.getString("tag");
+                    notificationManager.notify(tag, notificationID, info);
+                } else {
+                    notificationManager.notify(notificationID, info);
                 }
+
+                // Can't use setRepeating for recurring notifications because setRepeating
+                // is inexact by default starting API 19 and the notifications are not fired
+                // at the exact time. During testing, it was found that notifications could
+                // late by many minutes.
+                this.scheduleNextNotificationIfRepeating(bundle);
             }
-
-            // Remove the notification from the shared preferences once it has been shown
-            // to avoid showing the notification again when the phone is rebooted. If the
-            // notification is not removed, then every time the phone is rebooted, we will
-            // try to reschedule all the notifications stored in shared preferences and since
-            // these notifications will be in the past time, they will be shown immediately
-            // to the user which we shouldn't do. So, remove the notification from the shared
-            // preferences once it has been shown to the user. If it is a repeating notification
-            // it will be scheduled again.
-            if (scheduledNotificationsPersistence.getString(notificationIdString, null) != null) {
-                SharedPreferences.Editor editor = scheduledNotificationsPersistence.edit();
-                editor.remove(notificationIdString);
-                commit(editor);
-            }
-
-            Notification info = notification.build();
-            info.defaults |= Notification.DEFAULT_LIGHTS;
-
-            if (bundle.containsKey("tag")) {
-                String tag = bundle.getString("tag");
-                notificationManager.notify(tag, notificationID, info);
-            } else {
-                notificationManager.notify(notificationID, info);
-            }
-
-            // Can't use setRepeating for recurring notifications because setRepeating
-            // is inexact by default starting API 19 and the notifications are not fired
-            // at the exact time. During testing, it was found that notifications could
-            // late by many minutes.
-            this.scheduleNextNotificationIfRepeating(bundle);
         } catch (Exception e) {
             Log.e(LOG_TAG, "failed to send push notification", e);
         }

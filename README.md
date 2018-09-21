@@ -1,6 +1,4 @@
-# React Native Push Notifications
-[![npm version](https://badge.fury.io/js/react-native-push-notification.svg?update=7)](http://badge.fury.io/js/react-native-push-notification)
-[![npm downloads](https://img.shields.io/npm/dm/react-native-push-notification.svg?update=7)](http://badge.fury.io/js/react-native-push-notification)
+# React Native Push Notifications FORKED
 
 React Native Local and Remote Notifications for iOS and Android
 
@@ -13,9 +11,6 @@ React Native Local and Remote Notifications for iOS and Android
 | **2.0.2**          | **0.30, 0.31, 0.32**   | [Open](https://github.com/zo0r/react-native-push-notification/blob/a0f7d44e904ba0b92933518e5bf6b444f1c90abb/README.md)   |
 | **>= 2.1.0**          | **>= 0.33**   | [Open](https://github.com/zo0r/react-native-push-notification/blob/a359e5c00954aa324136eaa9808333d6ca246171/README.md)   |
 
-## Changelog
-Changelog is available from version 3.1.1 here: [Changelog](https://github.com/zo0r/react-native-push-notification/blob/master/CHANGELOG.md)
-
 ## Installation
 `npm install --save react-native-push-notification` or `yarn add react-native-push-notification`
 
@@ -26,10 +21,6 @@ Changelog is available from version 3.1.1 here: [Changelog](https://github.com/z
 ## Issues
 
 Having a problem?  Read the [troubleshooting](./trouble-shooting.md) guide before raising an issue.
-
-## Pull Requests
-
-[Please read...](./submitting-a-pull-request.md)
 
 ## iOS manual Installation
 The component uses PushNotificationIOS for the iOS part.
